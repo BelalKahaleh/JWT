@@ -5,23 +5,21 @@ const cors = require('cors');
 
 const app = express();
 const PORT = 5000;
-const SECRET_KEY = '7sn123';
+const SECRET_KEY = 'belal';
 
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true
 }));
 
-// Middlewares
+
 app.use(express.json());
 app.use(cookieParser());
 
-//Storage
 let users = [];
 
-// --------------------------
-//  Sign Up Endpoint
-// --------------------------
+//  Sign Up 
+
 app.post('/api/signup', (req, res) => {
     const { name, email, password } = req.body;
 
@@ -44,9 +42,8 @@ app.post('/api/signup', (req, res) => {
     res.status(201).json({ message: 'User created', token });
 });
 
-// --------------------------
-//  Login Endpoint
-// --------------------------
+
+//  Login 
 app.post('/api/login', (req, res) => {
     const { email, password } = req.body;
 
@@ -56,18 +53,14 @@ app.post('/api/login', (req, res) => {
         return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate a JWT token
     const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
-
-    // Set the token
     res.cookie('token', token, { httpOnly: true, secure: false });
 
     res.json({ message: 'Logged in successfully', token });
 });
 
-// --------------------------
+
 //  JWT Authentication Middleware
-// --------------------------
 function authenticateToken(req, res, next) {
     const token = req.cookies.token;
     if (!token) {
@@ -81,9 +74,8 @@ function authenticateToken(req, res, next) {
     });
 }
 
-// --------------------------
-//  Protected Profile Endpoint
-// --------------------------
+
+//  Protected Profile 
 app.get('/api/profile', authenticateToken, (req, res) => {
     const user = users.find(u => u.email === req.user.email);
     if (!user) {
@@ -97,9 +89,8 @@ app.get('/api/profile', authenticateToken, (req, res) => {
     });
 });
 
-// --------------------------
-//  Logout Endpoint
-// --------------------------
+
+//  Logout 
 app.post('/api/logout', (req, res) => {
     res.clearCookie('token');
     res.json({ message: 'Logged out successfully' });
